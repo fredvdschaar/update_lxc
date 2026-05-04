@@ -7,7 +7,6 @@
 # https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 
 function header_info() {
-  clear
   cat <<"EOF"
    __  __          __      __          __   _  ________
   / / / /___  ____/ /___ _/ /____     / /  | |/ / ____/
