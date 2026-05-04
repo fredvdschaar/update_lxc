@@ -18,14 +18,22 @@ function header_info() {
 EOF
 }
 
+# set colors
+set -eEuo pipefail
+YW=$(echo "\033[33m")
+BL=$(echo "\033[36m")
+RD=$(echo "\033[01;31m")
+CM='\xE2\x9C\x94\033'
+GN=$(echo "\033[1;92m")
+CL=$(echo "\033[m")
 
 # set colors empty
-YW=
-BL=
-RD=
-CM=
-GN=
-CL=
+#YW=
+#BL=
+#RD=
+#CM=
+#GN=
+#CL=
 
 # set environment vars
 SKIP_STOPPED="yes"
