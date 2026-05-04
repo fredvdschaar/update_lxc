@@ -120,8 +120,8 @@ for container in $(pct list | awk '{if(NR>1) print $1}'); do
     fi
   fi
   ## Run fstrim to shrink the container disk ##
-  echo "=============================================================="
-  echo "fstrim "$name
+  echo "${RD}=============================================================="
+  echo "${BL}[info] fstrim${GN} "$name
   pct fstrim "$container"
 done
 
