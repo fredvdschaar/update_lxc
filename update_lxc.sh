@@ -31,22 +31,23 @@ declare -f init_tool_telemetry &>/dev/null && init_tool_telemetry "update-lxcs" 
 
 header_info
 echo "Loading..."
-whiptail --backtitle "Proxmox VE Helper Scripts" --title "Proxmox VE LXC Updater" --yesno "This Will Update LXC Containers. Proceed?" 10 58
-if whiptail --backtitle "Proxmox VE Helper Scripts" --title "Skip Not-Running Containers" --yesno "Do you want to skip containers that are not currently running?" 10 58; then
+#whiptail --backtitle "Proxmox VE Helper Scripts" --title "Proxmox VE LXC Updater" --yesno "This Will Update LXC Containers. Proceed?" 10 58
+#if whiptail --backtitle "Proxmox VE Helper Scripts" --title "Skip Not-Running Containers" --yesno "Do you want to skip containers that are not currently running?" 10 58; then
   SKIP_STOPPED="yes"
-else
-  SKIP_STOPPED="no"
-fi
+#else
+#  SKIP_STOPPED="no"
+#fi
 
 NODE=$(hostname)
-EXCLUDE_MENU=()
-MSG_MAX_LENGTH=0
-while read -r TAG ITEM; do
-  OFFSET=2
-  ((${#ITEM} + OFFSET > MSG_MAX_LENGTH)) && MSG_MAX_LENGTH=${#ITEM}+OFFSET
-  EXCLUDE_MENU+=("$TAG" "$ITEM " "OFF")
-done < <(pct list | awk 'NR>1')
-excluded_containers=$(whiptail --backtitle "Proxmox VE Helper Scripts" --title "Containers on $NODE" --checklist "\nSelect containers to skip from updates:\n" 16 $((MSG_MAX_LENGTH + 23)) 6 "${EXCLUDE_MENU[@]}" 3>&1 1>&2 2>&3 | tr -d '"')
+#EXCLUDE_MENU=()
+#MSG_MAX_LENGTH=0
+#while read -r TAG ITEM; do
+#  OFFSET=2
+#  ((${#ITEM} + OFFSET > MSG_MAX_LENGTH)) && MSG_MAX_LENGTH=${#ITEM}+OFFSET
+#  EXCLUDE_MENU+=("$TAG" "$ITEM " "OFF")
+#done < <(pct list | awk 'NR>1')
+#excluded_containers=$(whiptail --backtitle "Proxmox VE Helper Scripts" --title "Containers on $NODE" --checklist "\nSelect containers to skip from updates:\n" 16 $((MSG_MAX_LENGTH + 23)) 6 "${EXCLUDE_MENU[@]}" 3>&1 1>&2 2>&3 | tr -d '"')
+excluded_containers=''
 
 function needs_reboot() {
   local container=$1
@@ -123,6 +124,10 @@ for container in $(pct list | awk '{if(NR>1) print $1}'); do
       fi
     fi
   fi
+  ## Run fstrim to shrink the container disk ##
+  echo "${RD}========"
+  echo "${BL}fstrim "$name
+  pct fstrim "$container"
 done
 wait
 header_info
