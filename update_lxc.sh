@@ -124,6 +124,7 @@ for container in $(pct list | awk '{if(NR>1) print $1}'); do
   echo -e "${BL}[info]${GN} fstrim "$name
   echo -e "${CL}\n"
   pct fstrim "$container"
+  echo -e "${CL}\n"
 done
 
 
