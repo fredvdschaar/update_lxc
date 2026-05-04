@@ -2,6 +2,7 @@
 
 # Copyright (c) 2021-2026 tteck
 # Author: tteck (tteckster)
+# Edit by: FvdS
 # License: MIT
 # https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 
@@ -14,40 +15,29 @@ function header_info() {
 / /_/ / /_/ / /_/ / /_/ / /_/  __/  / /___/   / /___
 \____/ .___/\__,_/\__,_/\__/\___/  /_____/_/|_\____/
     /_/
-
+===========[Adjusted version by FvdS]=================
 EOF
 }
-set -eEuo pipefail
-YW=$(echo "\033[33m")
-BL=$(echo "\033[36m")
-RD=$(echo "\033[01;31m")
-CM='\xE2\x9C\x94\033'
-GN=$(echo "\033[1;92m")
-CL=$(echo "\033[m")
 
-# Telemetry
-source <(curl -fsSL https://raw.githubusercontent.com/community-scripts/ProxmoxVE/main/misc/api.func) 2>/dev/null || true
-declare -f init_tool_telemetry &>/dev/null && init_tool_telemetry "update-lxcs" "pve"
 
+# set colors empty
+YW=
+BL=
+RD=
+CM=
+GN=
+CL=
+
+# set environment vars
+SKIP_STOPPED="yes"
+NODE=$(hostname)
+excluded_containers=
+containers_needing_reboot=()
+
+
+# show the header
 header_info
 echo "Loading..."
-#whiptail --backtitle "Proxmox VE Helper Scripts" --title "Proxmox VE LXC Updater" --yesno "This Will Update LXC Containers. Proceed?" 10 58
-#if whiptail --backtitle "Proxmox VE Helper Scripts" --title "Skip Not-Running Containers" --yesno "Do you want to skip containers that are not currently running?" 10 58; then
-  SKIP_STOPPED="yes"
-#else
-#  SKIP_STOPPED="no"
-#fi
-
-NODE=$(hostname)
-#EXCLUDE_MENU=()
-#MSG_MAX_LENGTH=0
-#while read -r TAG ITEM; do
-#  OFFSET=2
-#  ((${#ITEM} + OFFSET > MSG_MAX_LENGTH)) && MSG_MAX_LENGTH=${#ITEM}+OFFSET
-#  EXCLUDE_MENU+=("$TAG" "$ITEM " "OFF")
-#done < <(pct list | awk 'NR>1')
-#excluded_containers=$(whiptail --backtitle "Proxmox VE Helper Scripts" --title "Containers on $NODE" --checklist "\nSelect containers to skip from updates:\n" 16 $((MSG_MAX_LENGTH + 23)) 6 "${EXCLUDE_MENU[@]}" 3>&1 1>&2 2>&3 | tr -d '"')
-excluded_containers=''
 
 function needs_reboot() {
   local container=$1
@@ -65,7 +55,6 @@ function needs_reboot() {
 
 function update_container() {
   container=$1
-  header_info
   name=$(pct exec "$container" hostname)
   os=$(pct config "$container" | awk '/^ostype/ {print $2}')
   if [[ "$os" == "ubuntu" || "$os" == "debian" || "$os" == "fedora" ]]; then
@@ -84,8 +73,7 @@ function update_container() {
   esac
 }
 
-containers_needing_reboot=()
-header_info
+
 for container in $(pct list | awk '{if(NR>1) print $1}'); do
   if [[ " ${excluded_containers[@]} " =~ " $container " ]]; then
     header_info
@@ -125,12 +113,12 @@ for container in $(pct list | awk '{if(NR>1) print $1}'); do
     fi
   fi
   ## Run fstrim to shrink the container disk ##
-  echo "================================================"
+  echo "=============================================================="
   echo "fstrim "$name
   pct fstrim "$container"
 done
-wait
-header_info
+
+
 echo -e "${GN}The process is complete, and the containers have been successfully updated.${CL}\n"
 if [ "${#containers_needing_reboot[@]}" -gt 0 ]; then
   echo -e "${RD}The following containers require a reboot:${CL}"
