@@ -6,6 +6,11 @@
 # License: MIT
 # https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 
+### Functions
+function info_line {
+  echo -e "${BL}[info]${GN} $1 ${CL}\n"
+}
+
 function header_info() {
   cat <<"EOF"
    __  __          __      __          __   _  ________
@@ -16,8 +21,13 @@ function header_info() {
     /_/
 
 EOF
-echo -e "${RD}===========[Adjusted version by FvdS]=================${CL}\n"
+  echo -e "${RD}===========[Adjusted version by FvdS]=================${CL}\n"
+  info_line "Working on server $(hostname -f)"
 }
+
+
+
+info_line "Working on server $(hostname -f)"
 
 # set colors
 set -eEuo pipefail
@@ -27,14 +37,6 @@ RD=$(echo "\033[01;31m")
 CM='\xE2\x9C\x94\033'
 GN=$(echo "\033[1;92m")
 CL=$(echo "\033[m")
-
-# set colors empty
-#YW=
-#BL=
-#RD=
-#CM=
-#GN=
-#CL=
 
 # set environment vars
 SKIP_STOPPED="yes"
@@ -85,24 +87,28 @@ function update_container() {
 for container in $(pct list | awk '{if(NR>1) print $1}'); do
   if [[ " ${excluded_containers[@]} " =~ " $container " ]]; then
     header_info
-    echo -e "${BL}[Info]${GN} Skipping ${BL}$container${CL}"
+    info_line "Skipping ${BL}$container"
+    #echo -e "${BL}[Info]${GN} Skipping ${BL}$container${CL}"
     sleep 1
   else
     status=$(pct status $container)
     if [ "$SKIP_STOPPED" == "yes" ] && [ "$status" == "status: stopped" ]; then
       header_info
-      echo -e "${BL}[Info]${GN} Skipping ${BL}$container${CL}${GN} (not running)${CL}"
+      info_line "Skipping ${BL}$container${CL}${GN} (not running)${CL}"
+      #echo -e "${BL}[Info]${GN} Skipping ${BL}$container${CL}${GN} (not running)${CL}"
       sleep 1
       continue
     fi
     template=$(pct config $container | grep -q "template:" && echo "true" || echo "false")
     if [ "$template" == "false" ] && [ "$status" == "status: stopped" ]; then
-      echo -e "${BL}[Info]${GN} Starting${BL} $container ${CL} \n"
+      info_line "Starting${BL} $container"
+      #echo -e "${BL}[Info]${GN} Starting${BL} $container ${CL} \n"
       pct start $container
       echo -e "${BL}[Info]${GN} Waiting For${BL} $container${CL}${GN} To Start ${CL} \n"
       sleep 5
       update_container $container
-      echo -e "${BL}[Info]${GN} Shutting down${BL} $container ${CL} \n"
+      info_line "Shutting down${BL} $container "
+      #echo -e "${BL}[Info]${GN} Shutting down${BL} $container ${CL} \n"
       pct shutdown $container &
     elif [ "$status" == "status: running" ]; then
       update_container $container
@@ -115,21 +121,23 @@ for container in $(pct list | awk '{if(NR>1) print $1}'); do
       fi
       # check if patchmon agent is present in container and run a report if found
       if pct exec "$container" -- [ -e "/usr/local/bin/patchmon-agent" ]; then
-        echo -e "${BL}[Info]${GN} patchmon-agent found in ${BL} $container ${CL}, triggering report. \n"
+        info_line "patchmon-agent found in ${BL} $container ${CL}, triggering report."
+        #echo -e "${BL}[Info]${GN} patchmon-agent found in ${BL} $container ${CL}, triggering report. \n"
         pct exec "$container" -- "/usr/local/bin/patchmon-agent" "report"
       fi
     fi
   fi
   ## Run fstrim to shrink the container disk ##
-  echo -e "${BL}[info]${GN} fstrim "$name
+  info_line "fstrim "$name
+  #echo -e "${BL}[info]${GN} fstrim "$name
   echo -e "${CL}\n"
   pct fstrim "$container"
   echo -e "${RD}==============================================================${CL}\n"
   echo -e "${CL}\n"
 done
 
-
-echo -e "${GN}The process is complete, and the containers have been successfully updated.${CL}\n"
+info_line "The process is complete, and the containers have been successfully updated."
+#echo -e "${GN}The process is complete, and the containers have been successfully updated.${CL}\n"
 if [ "${#containers_needing_reboot[@]}" -gt 0 ]; then
   echo -e "${RD}The following containers require a reboot:${CL}"
   for container_name in "${containers_needing_reboot[@]}"; do
