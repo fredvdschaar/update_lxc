@@ -14,8 +14,9 @@ function header_info() {
 / /_/ / /_/ / /_/ / /_/ / /_/  __/  / /___/   / /___
 \____/ .___/\__,_/\__,_/\__/\___/  /_____/_/|_\____/
     /_/
-===========[Adjusted version by FvdS]=================
+
 EOF
+echo -e "${RD}===========[Adjusted version by FvdS]=================${CL}\n"
 }
 
 # set colors
@@ -120,10 +121,10 @@ for container in $(pct list | awk '{if(NR>1) print $1}'); do
     fi
   fi
   ## Run fstrim to shrink the container disk ##
-  echo -e "${RD}==============================================================${CL}\n"
   echo -e "${BL}[info]${GN} fstrim "$name
   echo -e "${CL}\n"
   pct fstrim "$container"
+  echo -e "${RD}==============================================================${CL}\n"
   echo -e "${CL}\n"
 done
 
