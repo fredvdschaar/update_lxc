@@ -133,7 +133,7 @@ for container in $(pct list | awk '{if(NR>1) print $1}'); do
   echo -e "${CL}\n"
   pct fstrim "$container"
   echo -e "${RD}==============================================================${CL}\n"
-  echo -e "${CL}\n"
+  #echo -e "${CL}\n"
 done
 
 info_line "The process is complete, and the containers have been successfully updated."
