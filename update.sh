@@ -12,14 +12,16 @@ echo $(date) > ~/update.dat
 # Brew
 brew outdated&&brew upgrade&&brew cleanup
 
+user=root
+gituser=fredvdschaar
+
 # proxmox
 clear
-ssh root@proxmox.local 'bash -c "$(curl -fsSL https://raw.githubusercontent.com/fredvdschaar/update_lxc/refs/heads/main/update_lxc.sh)"'
+for hostName in proxmox.local pve02.local ;
+  do
+    clear
+    ssh $user@$hostName 'bash -c "$(curl -fsSL https://raw.githubusercontent.com/$gituser/update_lxc/refs/heads/main/update_lxc.sh)"'
 
-#pve02
-clear
-ssh root@pve02.local 'bash -c "$(curl -fsSL https://raw.githubusercontent.com/fredvdschaar/update_lxc/refs/heads/main/update_lxc.sh)"'
+  done
 
-# docker host
-#ssh fred@pi-stijn "./update.sh"
-fred@Luke-Skywalker ~ %
+echo -e All proxmox hosts updated
