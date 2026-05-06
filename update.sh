@@ -1,5 +1,7 @@
 #!/bin/bash
 clear
+
+# show the last time this script ran
 if test -f ~/update.dat; then
   echo Last run:
   cat ~/update.dat
