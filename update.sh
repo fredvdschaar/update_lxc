@@ -11,6 +11,7 @@ echo $(date) > ~/update.dat
 
 # Brew
 brew outdated&&brew upgrade&&brew cleanup
+exit 1
 
 user=root
 gituser=fredvdschaar
