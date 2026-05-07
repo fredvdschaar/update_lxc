@@ -7,7 +7,7 @@
 # https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 
 ### Functions
-function info_line {
+function info_line() {
   echo -e "${BL}[info]${GN} $1 ${CL}\n"
 }
 
