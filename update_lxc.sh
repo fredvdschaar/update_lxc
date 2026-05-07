@@ -2,7 +2,7 @@
 
 # Copyright (c) 2021-2026 tteck
 # Author: tteck (tteckster)
-# Edit by: FvdS
+# Edit by: FvdS 2026-05-05
 # License: MIT
 # https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 
@@ -27,6 +27,7 @@ function info_line() {
 }
 
 function header_info() {
+  echo -e "${GN}"
   cat <<"EOF"
    __  __          __      __          __   _  ________
   / / / /___  ____/ /___ _/ /____     / /  | |/ / ____/
@@ -37,7 +38,7 @@ function header_info() {
 
 EOF
   echo -e "${RD}===========[Adjusted version by FvdS]=================${CL}\n"
-  info_line "Working on server $(hostname -f)"
+  info_line "Working on server [$(hostname -f)]"
 }
 
 # show the header
@@ -65,9 +66,11 @@ function update_container() {
   if [[ "$os" == "ubuntu" || "$os" == "debian" || "$os" == "fedora" ]]; then
     disk_info=$(pct exec "$container" df /boot | awk 'NR==2{gsub("%","",$5); printf "%s %.1fG %.1fG %.1fG", $5, $3/1024/1024, $2/1024/1024, $4/1024/1024 }')
     read -ra disk_info_array <<<"$disk_info"
-    echo -e "${BL}[Info]${GN} Updating ${BL}$container${CL} : ${GN}$name${CL} - ${YW}Boot Disk: ${disk_info_array[0]}% full [${disk_info_array[1]}/${disk_info_array[2]} used, ${disk_info_array[3]} free]${CL}\n"
+    info_line "Updating [${BL}$container${CL} : ${GN}$name${CL}] - ${YW}Boot Disk: ${disk_info_array[0]}% full [${disk_info_array[1]}/${disk_info_array[2]} used, ${disk_info_array[3]} free]"
+    #echo -e "${BL}[Info]${GN} Updating [${BL}$container${CL} : ${GN}$name${CL}] - ${YW}Boot Disk: ${disk_info_array[0]}% full [${disk_info_array[1]}/${disk_info_array[2]} used, ${disk_info_array[3]} free]${CL}\n"
   else
-    echo -e "${BL}[Info]${GN} Updating ${BL}$container${CL} : ${GN}$name${CL} - ${YW}[No disk info for ${os}]${CL}\n"
+    info_line "Updating [${BL}$container${CL} : ${GN}$name${CL}] - ${YW}[No disk info for ${os}]"
+    #echo -e "${BL}[Info]${GN} Updating [${BL}$container${CL} : ${GN}$name${CL}] - ${YW}[No disk info for ${os}]${CL}\n"
   fi
   case "$os" in
   alpine) pct exec "$container" -- ash -c "apk -U upgrade" ;;
@@ -90,20 +93,18 @@ for container in $(pct list | awk '{if(NR>1) print $1}'); do
     if [ "$SKIP_STOPPED" == "yes" ] && [ "$status" == "status: stopped" ]; then
       header_info
       info_line "Skipping ${BL}$container${CL}${GN} (not running)${CL}"
-      #echo -e "${BL}[Info]${GN} Skipping ${BL}$container${CL}${GN} (not running)${CL}"
       sleep 1
       continue
     fi
     template=$(pct config $container | grep -q "template:" && echo "true" || echo "false")
     if [ "$template" == "false" ] && [ "$status" == "status: stopped" ]; then
       info_line "Starting${BL} $container"
-      #echo -e "${BL}[Info]${GN} Starting${BL} $container ${CL} \n"
       pct start $container
-      echo -e "${BL}[Info]${GN} Waiting For${BL} $container${CL}${GN} To Start ${CL} \n"
+      #echo -e "${BL}[Info]${GN} Waiting For${BL} $container${CL}${GN} To Start ${CL} \n"
+      info_line "Waiting For${BL} $container${CL}${GN} To Start"
       sleep 5
       update_container $container
       info_line "Shutting down${BL} $container "
-      #echo -e "${BL}[Info]${GN} Shutting down${BL} $container ${CL} \n"
       pct shutdown $container &
     elif [ "$status" == "status: running" ]; then
       update_container $container
@@ -117,22 +118,18 @@ for container in $(pct list | awk '{if(NR>1) print $1}'); do
       # check if patchmon agent is present in container and run a report if found
       if pct exec "$container" -- [ -e "/usr/local/bin/patchmon-agent" ]; then
         info_line "patchmon-agent found in ${BL} $container ${CL}, triggering report."
-        #echo -e "${BL}[Info]${GN} patchmon-agent found in ${BL} $container ${CL}, triggering report. \n"
         pct exec "$container" -- "/usr/local/bin/patchmon-agent" "report"
       fi
     fi
   fi
   ## Run fstrim to shrink the container disk ##
   info_line "fstrim "$name
-  #echo -e "${BL}[info]${GN} fstrim "$name
-  echo -e "${CL}\n"
   pct fstrim "$container"
   echo -e "${RD}==============================================================${CL}\n"
-  #echo -e "${CL}\n"
+  #echo -e "${CL}n"
 done
 
 info_line "The process is complete, and the containers have been successfully updated."
-#echo -e "${GN}The process is complete, and the containers have been successfully updated.${CL}\n"
 if [ "${#containers_needing_reboot[@]}" -gt 0 ]; then
   echo -e "${RD}The following containers require a reboot:${CL}"
   for container_name in "${containers_needing_reboot[@]}"; do
