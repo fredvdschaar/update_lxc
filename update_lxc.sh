@@ -6,6 +6,21 @@
 # License: MIT
 # https://github.com/community-scripts/ProxmoxVE/raw/main/LICENSE
 
+# set colors
+set -eEuo pipefail
+YW=$(echo "\033[33m")
+BL=$(echo "\033[36m")
+RD=$(echo "\033[01;31m")
+CM='\xE2\x9C\x94\033'
+GN=$(echo "\033[1;92m")
+CL=$(echo "\033[m")
+
+# set environment vars
+SKIP_STOPPED="yes"
+NODE=$(hostname)
+excluded_containers=
+containers_needing_reboot=()
+
 ### Functions
 function info_line() {
   echo -e "${BL}[info]${GN} $1 ${CL}\n"
@@ -25,29 +40,9 @@ EOF
   info_line "Working on server $(hostname -f)"
 }
 
-
-
-info_line "Working on server $(hostname -f)"
-
-# set colors
-set -eEuo pipefail
-YW=$(echo "\033[33m")
-BL=$(echo "\033[36m")
-RD=$(echo "\033[01;31m")
-CM='\xE2\x9C\x94\033'
-GN=$(echo "\033[1;92m")
-CL=$(echo "\033[m")
-
-# set environment vars
-SKIP_STOPPED="yes"
-NODE=$(hostname)
-excluded_containers=
-containers_needing_reboot=()
-
-
 # show the header
 header_info
-echo "Loading..."
+info_line "Loading..."
 
 function needs_reboot() {
   local container=$1
