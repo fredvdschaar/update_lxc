@@ -32,7 +32,7 @@ function header_info() {
       |_|
 
 EOF
-  info_line "Working on server [$(hostname -f)]"
+  info_line "Updating BREW on [$(hostname -f)]"
 }
 
 header_info
@@ -48,18 +48,4 @@ echo $(date) > ~/update.dat
 
 # Brew
 brew outdated&&brew upgrade&&brew cleanup
-exit 1
-
-user=root
-gituser=fredvdschaar
-
-# proxmox
-clear
-for hostName in proxmox.local pve02.local ;
-  do
-    clear
-    bash ssh $user@$hostName 'bash -c "$(curl -fsSL https://raw.githubusercontent.com/$gituser/update_lxc/refs/heads/main/update_lxc.sh)"'
-
-  done
-
-echo -e All proxmox hosts updated
+echo -e All brews updated
