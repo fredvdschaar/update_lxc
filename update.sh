@@ -48,4 +48,4 @@ echo $(date) > ~/update.dat
 
 # Brew
 brew outdated&&brew upgrade&&brew cleanup
-echo -e All brews updated
+info_line "All brews updated"
