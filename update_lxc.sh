@@ -73,14 +73,17 @@ function update_container() {
     #echo -e "${BL}[Info]${GN} Updating [${BL}$container${CL} : ${GN}$name${CL}] - ${YW}[No disk info for ${os}]${CL}\n"
   fi
   case "$os" in
-  alpine) pct exec "$container" -- ash -c "apk -U upgrade" ;;
-  archlinux) pct exec "$container" -- bash -c "pacman -Syyu --noconfirm" ;;
-  fedora | rocky | centos | alma) pct exec "$container" -- bash -c "dnf -y update && dnf -y upgrade" ;;
-  ubuntu | debian | devuan) pct exec "$container" -- bash -c "apt-get update 2>/dev/null | grep 'packages.*upgraded'; apt list --upgradable 2>/dev/null | cat && apt-get -yq dist-upgrade 2>&1; rm -rf /usr/lib/python3.*/EXTERNALLY-MANAGED || true" ;;
-  opensuse) pct exec "$container" -- bash -c "zypper ref && zypper --non-interactive dup" ;;
+    alpine) pct exec "$container" -- ash -c "apk -U upgrade" ;;
+    archlinux) pct exec "$container" -- bash -c "pacman -Syyu --noconfirm" ;;
+    fedora | rocky | centos | alma) pct exec "$container" -- bash -c "dnf -y update && dnf -y upgrade" ;;
+    ubuntu | debian | devuan) pct exec "$container" -- bash -c "apt-get update 2>/dev/null | grep 'packages.*upgraded'; apt list --upgradable 2>/dev/null | cat && apt-get -yq dist-upgrade 2>&1; rm -rf /usr/lib/python3.*/EXTERNALLY-MANAGED || true" ;;
+    opensuse) pct exec "$container" -- bash -c "zypper ref && zypper --non-interactive dup" ;;
   esac
 }
 
+# count the containers
+containers = $(pct list | awk '{if(NR>1) print $1}')|wc -w
+info_line "Updating $containers container(s)"
 
 for container in $(pct list | awk '{if(NR>1) print $1}'); do
   if [[ " ${excluded_containers[@]} " =~ " $container " ]]; then
@@ -129,11 +132,14 @@ for container in $(pct list | awk '{if(NR>1) print $1}'); do
   #echo -e "${CL}n"
 done
 
-info_line "The process is complete, and the containers have been successfully updated."
+info_line "The process is complete and $containers containers have been successfully updated."
 if [ "${#containers_needing_reboot[@]}" -gt 0 ]; then
   echo -e "${RD}The following containers require a reboot:${CL}"
   for container_name in "${containers_needing_reboot[@]}"; do
     echo "$container_name"
   done
+  # wait for keypress
+  read -n 1 -s -r -p "Press any key to continue"
+  echo ""
 fi
 echo ""
