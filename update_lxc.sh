@@ -81,10 +81,6 @@ function update_container() {
   esac
 }
 
-# count the containers
-containers = $(pct list | awk '{if(NR>1) print $1}')|wc -w
-info_line "Updating $containers container(s)"
-
 for container in $(pct list | awk '{if(NR>1) print $1}'); do
   if [[ " ${excluded_containers[@]} " =~ " $container " ]]; then
     header_info
@@ -132,7 +128,7 @@ for container in $(pct list | awk '{if(NR>1) print $1}'); do
   #echo -e "${CL}n"
 done
 
-info_line "The process is complete and $containers containers have been successfully updated."
+info_line "The process is complete and the containers have been successfully updated."
 if [ "${#containers_needing_reboot[@]}" -gt 0 ]; then
   echo -e "${RD}The following containers require a reboot:${CL}"
   for container_name in "${containers_needing_reboot[@]}"; do
