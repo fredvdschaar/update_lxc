@@ -81,6 +81,9 @@ function update_container() {
   esac
 }
 
+num_container=$(pct list | awk '{if(NR>1) print $1}'|wc -w)
+info_line "Updating $num_container LXC container(s)"
+
 for container in $(pct list | awk '{if(NR>1) print $1}'); do
   if [[ " ${excluded_containers[@]} " =~ " $container " ]]; then
     header_info
