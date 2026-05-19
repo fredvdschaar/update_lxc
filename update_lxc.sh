@@ -81,10 +81,51 @@ function update_container() {
   esac
 }
 
+# Clean the logfiles on the selected container
+#
+function run_lxc_clean() {
+  local container=$1
+  name=$(pct exec "$container" hostname)
+
+  pct exec "$container" -- bash -c '
+    BL="\033[36m"; GN="\033[1;92m"; CL="\033[m"
+    name=$(hostname)
+    if [ -e /etc/alpine-release ]; then
+      info_line "Cleaning $name (Alpine)\n"
+      apk cache clean
+      find /var/log -type f -delete 2>/dev/null
+      find /tmp -mindepth 1 -delete 2>/dev/null
+      apk update
+    elif [ -e /etc/redhat-release ]; then
+      info_line "Cleaning $name (CentOS)\n"
+      yum clean all
+      find /var/log -type f -delete 2>/dev/null
+      find /tmp -mindepth 1 -delete 2>/dev/null
+      yum update
+      yum upgrade -y
+    else
+      info_line "Cleaning $name (Debian/Ubuntu)\n"
+      find /var/cache -type f -delete 2>/dev/null
+      find /var/log -type f -delete 2>/dev/null
+      find /tmp -mindepth 1 -delete 2>/dev/null
+      apt -y --purge autoremove
+      apt -y autoclean
+      rm -rf /var/lib/apt/lists/*
+      apt update
+    fi
+  '
+}
+
+#### 
+# Main loop
+####
 num_container=$(pct list | awk '{if(NR>1) print $1}'|wc -w)
 info_line "Updating $num_container LXC container(s)"
 
 for container in $(pct list | awk '{if(NR>1) print $1}'); do
+  ## clean up logfiles and packages
+  run_lxc_clean "$container"
+  ##
   if [[ " ${excluded_containers[@]} " =~ " $container " ]]; then
     header_info
     info_line "Skipping ${BL}$container"
