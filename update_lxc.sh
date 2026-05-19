@@ -91,27 +91,27 @@ function run_lxc_clean() {
     BL="\033[36m"; GN="\033[1;92m"; CL="\033[m"
     name=$(hostname)
     if [ -e /etc/alpine-release ]; then
-      info_line "Cleaning $name (Alpine)\n"
+      info_line "Cleaning logfiles of $name (Alpine)\n"
       apk cache clean
       find /var/log -type f -delete 2>/dev/null
       find /tmp -mindepth 1 -delete 2>/dev/null
-      apk update
+      #apk update
     elif [ -e /etc/redhat-release ]; then
-      info_line "Cleaning $name (CentOS)\n"
+      info_line "Cleaning logfiles of $name (CentOS)\n"
       yum clean all
       find /var/log -type f -delete 2>/dev/null
       find /tmp -mindepth 1 -delete 2>/dev/null
       yum update
-      yum upgrade -y
+      #yum upgrade -y
     else
-      info_line "Cleaning $name (Debian/Ubuntu)\n"
+      info_line "Cleaning logfiles of $name (Debian/Ubuntu)\n"
       find /var/cache -type f -delete 2>/dev/null
       find /var/log -type f -delete 2>/dev/null
       find /tmp -mindepth 1 -delete 2>/dev/null
       apt -y --purge autoremove
       apt -y autoclean
       rm -rf /var/lib/apt/lists/*
-      apt update
+      #apt update
     fi
   '
 }
