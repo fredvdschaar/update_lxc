@@ -124,7 +124,7 @@ info_line "Updating $num_container LXC container(s)"
 
 for container in $(pct list | awk '{if(NR>1) print $1}'); do
   ## clean up logfiles and packages
-  run_lxc_clean "$container"
+  #run_lxc_clean "$container"
   ##
   if [[ " ${excluded_containers[@]} " =~ " $container " ]]; then
     header_info
