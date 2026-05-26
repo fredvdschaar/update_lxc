@@ -8,3 +8,8 @@ systemctl list-units --type=service  --no-pager --no-legend --full \
         #restart in one transaction to let systemctl handle dependencies
         systemctl restart $strservices
     )
+
+
+#####
+services=$(systemctl list-units --type=service  --no-pager --no-legend --full | grep running | awk NF=1)
+echo $services
