@@ -1,4 +1,11 @@
 # services.dat
-  cloudflared
-  technitium
-  mariadb
+#
+# proxmox
+# Hostname   Service
+cloudflared  cloudflared
+technitium  technitium
+mariadb  mariadb
+#
+# pve02
+technitiumdns  technitium
+cloudflared02   cloudflared
