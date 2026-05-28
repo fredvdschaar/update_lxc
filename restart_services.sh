@@ -11,7 +11,7 @@ systemctl list-units --type=service  --no-pager --no-legend --full \
 
 
 #####
-active_service='$(curl )'
+active_service='$(curl -fsSL https://raw.githubusercontent.com/fredvdschaar/update_lxc/refs/heads/main/services.dat)'
 echo $active_service|grep $(hostname)
 for service in $(systemctl list-units --type=service  --no-pager --no-legend --full | grep running | awk NF=1); do
 
