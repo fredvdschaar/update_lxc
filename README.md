@@ -8,3 +8,6 @@ It assumes only running LXC containers will be updated.
 
 ## Added:
 I added the fstrim statement after each update.
+
+## Latest
+Working on isolating functions in a separate file, to be loaded by the main script(s), trying to avoid duplicates
