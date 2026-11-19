@@ -106,12 +106,12 @@ function run_lxc_clean() {
     else
       echo -e "${BL}[Info]${GN} Cleaning logfiles of $name (Debian/Ubuntu) ${CL}\n"
       find /var/cache -type f -delete 2>/dev/null
-      find /var/log -type f -delete 2>/dev/null
+      #find /var/log -type f -delete 2>/dev/null
       find /tmp -mindepth 1 -delete 2>/dev/null
-      #apt -y --purge autoremove
-      #apt -y autoclean
-      #rm -rf /var/lib/apt/lists/*
-      #apt update
+      apt -y --purge autoremove
+      apt -y autoclean
+      rm -rf /var/lib/apt/lists/*
+      apt update
     fi
   '
 }
@@ -124,7 +124,7 @@ info_line "Updating $num_container LXC container(s)"
 
 for container in $(pct list | awk '{if(NR>1) print $1}'); do
   ## clean up logfiles and packages
-  #run_lxc_clean "$container"
+  run_lxc_clean "$container"
   ##
   if [[ " ${excluded_containers[@]} " =~ " $container " ]]; then
     header_info
